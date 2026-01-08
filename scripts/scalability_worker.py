@@ -69,7 +69,7 @@ def main(argv):
 
         # Define our specific columns
         categorical_cols = ["age", "gender", "law", "ethnicity", "search_type", "reason", "police_force"]
-        numeric_cols = ["is_person", "strip_search", "hour", "month", "dayofweek"]
+        numeric_cols = ["hour", "month", "dayofweek"]
 
         # Preprocessing: StringIndexers for categories
         indexers = [
