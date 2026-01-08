@@ -85,8 +85,11 @@ def main(argv):
         # Note: maxBins=64 handles the 42 police forces in your data
         dt = DecisionTreeClassifier(
             labelCol="legal_action_taken", 
-            featuresCol="features", 
-            maxBins=64
+            featuresCol="features",
+            maxDepth=10,
+            minInstancesPerNode=5,
+            maxBins=128,
+            impurity='gini'
         ) 
 
         # Building the Pipeline (Preprocessing + Training included)
