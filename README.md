@@ -240,7 +240,7 @@ Comprehensive evaluation of the scalability experiments.
 
 ---
 
-### 7. Longitudinal Feature Importance Analysis
+### 7. Bias Audit
 
 Track how feature importance changes over time to detect shifting bias patterns.
 
