@@ -1,4 +1,4 @@
-# Data Collection Script
+# 1) Data Collection Script
 
 ## Overview
 
@@ -31,11 +31,11 @@ This script `scripts/data_collection.py` was used to collect stop-and-search dat
 
 Data source: [UK Police Data API](https://data.police.uk/api)
 
-# Scalability Worker Script
+# 2) Scalability Worker Script
 
 ## Overview
 
-The `scalability_worker.py` script is a utility for conducting scalability studies on the UK Police Stop and Search dataset using PySpark and Machine Learning pipelines. This script is used by the `uk_police_notebook.ipynb` notebook at section **"5. Scalabilty study: Size up, Scale up and Speed up"**.
+The `scripts/scalability_worker.py` script is a utility for conducting scalability studies on the UK Police Stop and Search dataset using PySpark and Machine Learning pipelines. This script is used by the `uk_police_notebook.ipynb` notebook at section **"5. Scalabilty study: Size up, Scale up and Speed up"**.
 
 ## Purpose
 
@@ -84,7 +84,7 @@ Results are appended to the specified CSV file with columns:
 - `percentage`: Percentage of data used
 - `runtime`: Execution time in seconds
 
-# UK Police Stop and Search Analysis - Overview
+# 3) UK Police Stop and Search Analysis - Overview
 
 The main notebook `uk_police_notebook.ipynb` performs a large-scale data analysis of **Stop and Search** records from the UK Police open data portal, focusing on bias detection and scalability analysis.
 
@@ -291,16 +291,3 @@ Track how feature importance changes over time to detect shifting bias patterns.
 - **Multi-strategy imbalance handling** (weighting + sampling)
 - **Comprehensive scalability study** (size/speed/scale-up)
 - **Longitudinal feature tracking** for bias evolution
-
----
-
-## Data Source
-[UK Police Open Data Portal](https://data.police.uk/)
-
-## Repository
-**Iker-Jauregui/LSDA_Final_Project**  
-File: `uk_police_notebook.ipynb`  
-Commit: 228f02a87d7e525ff14c0a8e3dc208127efe0cbc
-
-## Project Type
-**Large-Scale Data Analysis (LSDA)** - Big Data + Machine Learning + Fairness Analysis
