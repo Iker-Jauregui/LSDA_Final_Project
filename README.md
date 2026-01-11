@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `data_collection_script.py` downloads stop-and-search data from the UK Police API (police.uk) across multiple police forces and time periods. 
+The `data_collection_script.py` downloads stop-and-search data from the UK Police API (police.uk) across multiple police forces and time periods using the api: https://data.police.uk/api. For more information about the api we recommend to visit the full documentation at: https://data.police.uk/docs/.
 
 ## How It Works
 
@@ -68,7 +68,3 @@ df = pd.read_parquet('data/stop_search_data/ssd_2022-01-2025-12.parquet')
 print(df.shape)
 print(df.info())
 ```
-
----
-
-**API Documentation**:  https://data.police.uk/docs/
