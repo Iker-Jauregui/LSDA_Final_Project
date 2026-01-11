@@ -3,31 +3,28 @@ import json
 import time
 import pandas as pd
 import argparse
-import os  # Nuevo import necesario para gestionar directorios
+import os
 from datetime import datetime
 
 BASE_URL = "https://data.police.uk/api"
 
 def parse_date(date_string):
-    """Convierte string YYYY-MM a objeto datetime"""
     try:
         return datetime.strptime(date_string, "%Y-%m")
     except ValueError:
-        raise argparse.ArgumentTypeError(f"Formato de fecha inválido: {date_string}. Use YYYY-MM")
+        raise argparse.ArgumentTypeError(f"Invalid date format: {date_string}. Use YYYY-MM")
 
 def fetch_available_dates(start_date=None, end_date=None):
-    """Obtiene las fechas y fuerzas disponibles desde la API, filtradas por rango"""
-    print("Obtaining available dates and forces...")
+    print("Getting available dates and forces...")
     response = requests.get(f"{BASE_URL}/crimes-street-dates")
     available_data = response.json() if response.status_code == 200 else []
 
-    # Filtrar por rango de fechas si se especifica
+    # Filter by date if specified
     if start_date or end_date:
         filtered_data = []
         for month_data in available_data:
             month_date = datetime.strptime(month_data['date'], "%Y-%m")
 
-            # Verificar si está dentro del rango
             if start_date and month_date < start_date:
                 continue
             if end_date and month_date > end_date:
@@ -48,7 +45,6 @@ def fetch_available_dates(start_date=None, end_date=None):
     return available_data
 
 def fetch_stops_data(available_data):
-    """Descarga todos los registros de stop-and-search"""
     all_records = []
     total_records = 0
     total_requests = 0
@@ -85,21 +81,20 @@ def fetch_stops_data(available_data):
                             all_records.append(record)
 
                         total_records += len(stops)
-                        print(f"✓ {len(stops)} records")
+                        print(f"{len(stops)} records")
                     else:
-                        print("○ No records")
+                        print("No records")
                 else:
-                    print(f"✗ Error {response.status_code}")
+                    print(f"Error {response.status_code}")
 
             except Exception as e:
-                print(f"✗ Exception: {e}")
+                print(f"Exception: {e}")
 
             time.sleep(0.3)
 
     return all_records, total_records, total_requests
 
 def save_data(all_records, output_base, save_json, save_csv, save_parquet):
-    """Guarda los datos en los formatos solicitados"""
     print(f"\n{'='*60}")
     print("Processing and saving data...")
     print(f"{'='*60}")
@@ -131,7 +126,6 @@ def save_data(all_records, output_base, save_json, save_csv, save_parquet):
     return saved_files
 
 def print_summary(available_data, total_requests, total_records, saved_files):
-    """Imprime el resumen final"""
     print(f"\n{'='*60}")
     print("FINAL SUMMARY:")
     print(f"{'='*60}")
@@ -144,16 +138,15 @@ def print_summary(available_data, total_requests, total_records, saved_files):
     print(f"{'='*60}")
 
 def main():
-    """Función principal del script"""
     parser = argparse.ArgumentParser(
-        description='Descarga datos de stop-and-search de la API de police.uk',
+        description='Downloads stop-and-search data from the police.uk API',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Ejemplos de uso:
-  # Descargar todos los datos disponibles en formato Parquet
+Usage examples:
+  # Download all available data in Parquet format
   python script.py
 
-  # Descargar solo datos de 2024 en CSV
+  # Download only 2024 data in CSV
   python script.py --format csv --start 2024-01 --end 2024-12
         """
     )
@@ -161,69 +154,63 @@ Ejemplos de uso:
         '--format',
         choices=['json', 'csv', 'parquet', 'all'],
         default='parquet',
-        help='Formato de salida: json, csv, parquet o all (por defecto: parquet)'
+        help='Output format: json, csv, parquet, or all (default: parquet)'
     )
-    # ELIMINADO: argumento --output ya que el nombre es automático ahora
     parser.add_argument(
         '--start',
         type=str,
         metavar='YYYY-MM',
-        help='Fecha de inicio (formato: YYYY-MM, ej: 2023-01)'
+        help='Start date (format: YYYY-MM, e.g., 2023-01)'
     )
     parser.add_argument(
         '--end',
         type=str,
         metavar='YYYY-MM',
-        help='Fecha de fin (formato: YYYY-MM, ej: 2024-12)'
+        help='End date (format: YYYY-MM, e.g.: 2024-12)'
     )
 
     args = parser.parse_args()
 
-    # Validar y parsear fechas
+    # Validate and parse dates
     start_date = parse_date(args.start) if args.start else None
     end_date = parse_date(args.end) if args.end else None
 
-    # Validar que start no sea posterior a end
+    # Validate date range
     if start_date and end_date and start_date > end_date:
-        parser.error("La fecha de inicio no puede ser posterior a la fecha de fin")
+        parser.error("The start date cannot be later than the end date")
 
-    # Determinar qué formatos guardar
+    # Check saving format
     save_json = args.format in ['json', 'all']
     save_csv = args.format in ['csv', 'all']
     save_parquet = args.format in ['parquet', 'all']
 
-    # Proceso principal
+    # Main process
     available_data = fetch_available_dates(start_date, end_date)
 
     if not available_data:
-        print("No hay datos disponibles para el rango de fechas especificado")
+        print("No data available for the specified date range")
         return
 
     all_records, total_records, total_requests = fetch_stops_data(available_data)
 
     if not all_records:
-        print("No se obtuvieron registros")
+        print("No records were retrieved")
         return
-
-    # --- NUEVA LÓGICA DE NOMBRE Y RUTA ---
     
-    # 1. Definir el directorio de salida
+    # 1. Define output path
     output_dir = os.path.join("data", "stop_search_data")
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         print(f"\nCreated directory: {output_dir}")
 
-    # 2. Extraer fechas reales de los datos obtenidos para el nombre del archivo
-    # Ordenamos las fechas disponibles para asegurar cuál es la inicial y la final
+    # 2. Extract real dates from obtained data for the filename
     dates_found = sorted([d['date'] for d in available_data])
     file_start_date = dates_found[0]
     file_final_date = dates_found[-1]
 
-    # 3. Construir el nombre base: ssd_{start_date}-{final_date}
+    # 3. Create filename
     filename = f"ssd_{file_start_date}-{file_final_date}"
     output_path = os.path.join(output_dir, filename)
-
-    # -------------------------------------
 
     saved_files = save_data(all_records, output_path, save_json, save_csv, save_parquet)
     print_summary(available_data, total_requests, total_records, saved_files)
